@@ -5,6 +5,7 @@ class ContactModel {
   String email;
   String address;
   String website;
+  String designation;
   String image;
   String company;
   bool isFav;
@@ -15,6 +16,7 @@ class ContactModel {
       required this.mobile,
       this.email='',
       this.address='',
+      this.designation='',
       this.website='',
       this.image='images/person.png',
       this.company='',

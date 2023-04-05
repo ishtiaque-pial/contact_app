@@ -49,8 +49,20 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
               ],
             ),
           ),
+          ListTile(
+            title: Text(contact.email.isEmpty? 'Not Found': contact.email),
+            trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.email)),
+          ),
+          ListTile(
+            title: Text(contact.address.isEmpty? 'Not Found': contact.address),
+            trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.location_on)),
+          ),
+          ListTile(
+            title: Text(contact.website.isEmpty? 'Not Found': contact.website),
+            trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.web)),
+          ),
         ],
-      ),
+      )
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:contact_app/db/temp_db.dart';
 import 'package:contact_app/pages/contact_details_page.dart';
+import 'package:contact_app/pages/contact_form_page.dart';
 import 'package:flutter/material.dart';
 
 class ContactHomePage extends StatefulWidget {
@@ -34,6 +35,16 @@ class _ContactHomePageState extends State<ContactHomePage> {
             trailing: Icon(Icons.favorite_border),
           );
         },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+          await Navigator.pushNamed(context, ContactFormPage.routeName);
+          setState(() {
+
+          });
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
