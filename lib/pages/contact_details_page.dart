@@ -1,4 +1,3 @@
-import 'package:contact_app/db/temp_db.dart';
 import 'package:contact_app/models/ContactModel.dart';
 import 'package:flutter/material.dart';
 
@@ -20,8 +19,7 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     if (isFirst) {
       if(ModalRoute.of(context)?.settings.arguments !=null) {
         contact = ModalRoute.of(context)?.settings.arguments as ContactModel;
-      } else {
-        contact = contactList[0];
+        isFirst = false;
       }
     }
     super.didChangeDependencies();
@@ -31,7 +29,7 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contact Details'),
+        title: const Text('Contact Details'),
       ),
       body: ListView(
         children: [

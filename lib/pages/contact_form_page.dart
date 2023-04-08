@@ -1,5 +1,6 @@
-import 'package:contact_app/db/temp_db.dart';
+import 'package:contact_app/db/dbhelper.dart';
 import 'package:contact_app/models/ContactModel.dart';
+import 'package:contact_app/utils/helper_functions.dart';
 import 'package:flutter/material.dart';
 
 class ContactFormPage extends StatefulWidget {
@@ -21,6 +22,27 @@ class _ContactFormPageState extends State<ContactFormPage> {
   final webController = TextEditingController();
   final addressController = TextEditingController();
 
+  bool isFirst = true;
+  ContactModel? contact;
+
+  @override
+  void didChangeDependencies() {
+    if (isFirst) {
+      if (ModalRoute.of(context)?.settings.arguments != null) {
+        contact = ModalRoute.of(context)?.settings.arguments as ContactModel;
+        nameController.text = contact!.contactName;
+        mobileController.text = contact!.mobile;
+        emailController.text = contact!.email;
+        designationController.text = contact!.designation;
+        companyController.text = contact!.company;
+        webController.text = contact!.website;
+        addressController.text = contact!.address;
+        isFirst = false;
+      }
+    }
+    super.didChangeDependencies();
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -41,9 +63,9 @@ class _ContactFormPageState extends State<ContactFormPage> {
         actions: [
           InkWell(
             onTap: _saveContact,
-            child: const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: Text('SAVE')),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(child: Text((contact == null) ? 'SAVE' : "EDIT")),
             ),
           )
         ],
@@ -131,18 +153,39 @@ class _ContactFormPageState extends State<ContactFormPage> {
 
   void _saveContact() {
     if (formKey.currentState!.validate()) {
-      final contact = ContactModel(
-          id: contactList.length + 1,
-          contactName: nameController.text,
-          mobile: mobileController.text,
-          address: addressController.text,
-          company: companyController.text,
-          designation: designationController.text,
-          website: webController.text,
-          email: emailController.text,
+      final contactFinal = ContactModel(
+        contactName: nameController.text,
+        mobile: mobileController.text,
+        address: addressController.text,
+        company: companyController.text,
+        designation: designationController.text,
+        website: webController.text,
+        email: emailController.text,
       );
-      contactList.add(contact);
-      Navigator.pop(context);
+      if(contact==null) {
+        DbHelper().insert(contactFinal).then((value) {
+          if (value > 0) {
+            showMsg(context, 'Saved');
+            contactFinal.id = value;
+            Navigator.pop(context, contactFinal);
+          } else {
+            showMsg(context, 'Failed to save');
+          }
+        }).catchError((error) {
+          showMsg(context, 'Failed to save');
+        });
+      } else {
+        DbHelper().updateContactField(contact!.id,contactFinal.toMap()).then((value) {
+          if (value > 0) {
+            showMsg(context, 'Edited');
+            Navigator.pop(context, contactFinal);
+          } else {
+            showMsg(context, 'Failed to save');
+          }
+        }).catchError((error) {
+          showMsg(context, 'Failed to save');
+        });
+      }
     }
   }
 }

@@ -1,7 +1,9 @@
-import 'package:contact_app/db/temp_db.dart';
+import 'package:contact_app/db/dbhelper.dart';
 import 'package:contact_app/pages/contact_details_page.dart';
 import 'package:contact_app/pages/contact_form_page.dart';
 import 'package:flutter/material.dart';
+
+import '../models/ContactModel.dart';
 
 class ContactHomePage extends StatefulWidget {
   static const String routeName = '/';
@@ -13,11 +15,24 @@ class ContactHomePage extends StatefulWidget {
 }
 
 class _ContactHomePageState extends State<ContactHomePage> {
+  List<ContactModel> contactList = [];
+
+  @override
+  void initState() {
+    DbHelper().getAllContact().then((value) {
+      contactList = value;
+      setState(() {
+
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Contact App"),
+        title: const Text("Contact App"),
       ),
       body: ListView.builder(
         itemCount: contactList.length,
@@ -25,27 +40,58 @@ class _ContactHomePageState extends State<ContactHomePage> {
           final contact = contactList[index];
           return ListTile(
             onTap: () {
-              Navigator.pushNamed(context, ContactDetailsPage.routeName, arguments: contact);
+              Navigator.pushNamed(context, ContactDetailsPage.routeName,
+                  arguments: contact);
             },
             title: Text(
               contact.contactName,
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
             subtitle: Text(contact.mobile),
-            trailing: Icon(Icons.favorite_border),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      _handleTap(ContactFormPage.routeName,contactModel: contact,index: index);
+                    },
+                    icon: const Icon(Icons.edit)),
+                IconButton(
+                    onPressed: () {
+                      contact.isFav = !contact.isFav;
+                      DbHelper().updateContactField(contact.id, contact.toMap()).then((value) {
+                        contactList[index]=contact;
+                        setState(() {
+
+                        });
+                      },);
+                    },
+                    icon: contact.isFav? const Icon(Icons.favorite,color: Colors.red,) : const Icon(Icons.favorite_border)),
+              ],
+            ),
           );
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () async{
-          await Navigator.pushNamed(context, ContactFormPage.routeName);
-          setState(() {
-
-          });
+        onPressed: () {
+          _handleTap(ContactFormPage.routeName);
         },
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _handleTap(String routeName, {ContactModel? contactModel,int? index}) async {
+    final contact =
+    await Navigator.pushNamed(context, routeName,arguments: contactModel);
+    if (contact != null) {
+      if(index==null) {
+        contactList.add(contact as ContactModel);
+      } else {
+        contactList[index] = contact as ContactModel;
+      }
+    }
+    setState(() {});
   }
 }
