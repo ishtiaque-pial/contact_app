@@ -21,9 +21,7 @@ class _ContactHomePageState extends State<ContactHomePage> {
   void initState() {
     DbHelper().getAllContact().then((value) {
       contactList = value;
-      setState(() {
-
-      });
+      setState(() {});
     });
     super.initState();
   }
@@ -34,44 +32,63 @@ class _ContactHomePageState extends State<ContactHomePage> {
       appBar: AppBar(
         title: const Text("Contact App"),
       ),
-      body: ListView.builder(
-        itemCount: contactList.length,
-        itemBuilder: (context, index) {
-          final contact = contactList[index];
-          return ListTile(
-            onTap: () {
-              Navigator.pushNamed(context, ContactDetailsPage.routeName,
-                  arguments: contact);
-            },
-            title: Text(
-              contact.contactName,
-              style: const TextStyle(fontSize: 18),
-            ),
-            subtitle: Text(contact.mobile),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      _handleTap(ContactFormPage.routeName,contactModel: contact,index: index);
-                    },
-                    icon: const Icon(Icons.edit)),
-                IconButton(
-                    onPressed: () {
-                      contact.isFav = !contact.isFav;
-                      DbHelper().updateContactField(contact.id, contact.toMap()).then((value) {
-                        contactList[index]=contact;
-                        setState(() {
+      body: (contactList.isNotEmpty)
+          ? ListView.builder(
+              itemCount: contactList.length,
+              itemBuilder: (context, index) {
+                final contact = contactList[index];
+                return ListTile(
+                  onTap: () {
+                    Navigator.pushNamed(context, ContactDetailsPage.routeName,
+                        arguments: contact.id).then((value) {
+                          if(value is bool && value){
+                            contactList.removeAt(index);
+                            setState(() {
 
-                        });
-                      },);
-                    },
-                    icon: contact.isFav? const Icon(Icons.favorite,color: Colors.red,) : const Icon(Icons.favorite_border)),
-              ],
+                            });
+                          }
+                        },);
+                  },
+                  title: Text(
+                    contact.contactName,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  subtitle: Text(contact.mobile),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            _handleTap(ContactFormPage.routeName,
+                                contactModel: contact, index: index);
+                          },
+                          icon: const Icon(Icons.edit)),
+                      IconButton(
+                          onPressed: () {
+                            contact.isFav = !contact.isFav;
+                            DbHelper()
+                                .updateContactField(contact.id, contact.toMap())
+                                .then(
+                              (value) {
+                                contactList[index] = contact;
+                                setState(() {});
+                              },
+                            );
+                          },
+                          icon: contact.isFav
+                              ? const Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                )
+                              : const Icon(Icons.favorite_border)),
+                    ],
+                  ),
+                );
+              },
+            )
+          : const Center(
+              child: Text('No Data found'),
             ),
-          );
-        },
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -82,11 +99,12 @@ class _ContactHomePageState extends State<ContactHomePage> {
     );
   }
 
-  void _handleTap(String routeName, {ContactModel? contactModel,int? index}) async {
+  void _handleTap(String routeName,
+      {ContactModel? contactModel, int? index}) async {
     final contact =
-    await Navigator.pushNamed(context, routeName,arguments: contactModel);
+        await Navigator.pushNamed(context, routeName, arguments: contactModel);
     if (contact != null) {
-      if(index==null) {
+      if (index == null) {
         contactList.add(contact as ContactModel);
       } else {
         contactList[index] = contact as ContactModel;

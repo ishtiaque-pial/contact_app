@@ -38,6 +38,17 @@ class DbHelper {
     final mapList = await db.query(tableContact);
     return List.generate(mapList.length, (index) => ContactModel.fromMap(mapList[index]));
   }
+  
+  Future<ContactModel> getContact(int id) async{
+    final db = await _open();
+    final mapList = await db.query(tableContact,where: '$tblContactId = ?', whereArgs: [id]);
+    return ContactModel.fromMap(mapList.first);
+  }
+
+  Future<int> deleteContact(int id) async{
+    final db = await _open();
+    return await db.delete(tableContact,where: '$tblContactId = ?', whereArgs: [id]);
+  }
 
   Future<int> updateContactField(int id, Map<String,dynamic> map) async {
     final db = await _open();
