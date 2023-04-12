@@ -36,18 +36,17 @@ class ContactModel {
       this.company = '',
       this.isFav = false});
 
-  factory ContactModel.fromMap(Map<String,dynamic> map) => ContactModel(
-      contactName: map[tblContactName],
-      mobile: map[tblContactMobile],
-      id: map[tblContactId],
-      email: map[tblContactEmail],
-      address: map[tblContactAddress],
-      website: map[tblContactWebsite],
-      company: map[tblContactCompany],
-      image: map[tblContactImage],
-      isFav: map[tblContactFavorite]==1,
-
-  );
+  factory ContactModel.fromMap(Map<String, dynamic> map) => ContactModel(
+        contactName: map[tblContactName],
+        mobile: map[tblContactMobile],
+        id: map[tblContactId],
+        email: map[tblContactEmail],
+        address: map[tblContactAddress],
+        website: map[tblContactWebsite],
+        company: map[tblContactCompany],
+        image: map[tblContactImage],
+        isFav: map[tblContactFavorite] == 1,
+      );
 
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
@@ -61,7 +60,7 @@ class ContactModel {
       tblContactImage: image,
       tblContactFavorite: isFav ? 1 : 0,
     };
-    if(id>0) {
+    if (id > 0) {
       map[tblContactId] = id;
     }
     return map;

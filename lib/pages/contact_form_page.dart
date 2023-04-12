@@ -1,7 +1,9 @@
 import 'package:contact_app/db/dbhelper.dart';
 import 'package:contact_app/models/ContactModel.dart';
+import 'package:contact_app/provider/contact_provider.dart';
 import 'package:contact_app/utils/helper_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ContactFormPage extends StatefulWidget {
   static const String routeName = "/contact_form_page";
@@ -24,10 +26,12 @@ class _ContactFormPageState extends State<ContactFormPage> {
 
   bool isFirst = true;
   ContactModel? contact;
+  late ContactProvider _contactProvider;
 
   @override
   void didChangeDependencies() {
     if (isFirst) {
+      _contactProvider = Provider.of<ContactProvider>(context,listen: false);
       if (ModalRoute.of(context)?.settings.arguments != null) {
         contact = ModalRoute.of(context)?.settings.arguments as ContactModel;
         nameController.text = contact!.contactName;
@@ -163,7 +167,7 @@ class _ContactFormPageState extends State<ContactFormPage> {
         email: emailController.text,
       );
       if(contact==null) {
-        DbHelper().insert(contactFinal).then((value) {
+        _contactProvider.insert(contactFinal).then((value) {
           if (value > 0) {
             showMsg(context, 'Saved');
             contactFinal.id = value;
@@ -175,7 +179,9 @@ class _ContactFormPageState extends State<ContactFormPage> {
           showMsg(context, 'Failed to save');
         });
       } else {
-        DbHelper().updateContactField(contact!.id,contactFinal.toMap()).then((value) {
+        contactFinal.id = contact!.id;
+        contactFinal.isFav = contact!.isFav;
+        _contactProvider.updateContactField(contact!.id,contactFinal.toMap()).then((value) {
           if (value > 0) {
             showMsg(context, 'Edited');
             Navigator.pop(context, contactFinal);
